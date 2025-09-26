@@ -1,5 +1,5 @@
 
-**World Rebalance**
+#World Rebalance
 
 ## 📌 Project Overview
 A multiplayer game project with backend integration and real-time analytics.
