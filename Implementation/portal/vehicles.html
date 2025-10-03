@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vehicle Statistics</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- 导航栏 -->
+<header>
+  <nav>
+    <div class="logo">WORLD<span>REBALANCE</span></div>
+    <ul class="nav-links">
+            <li><a class="active" href="index.html">Home</a></li>
+            <li><a href="squad_ranks.html">Squad Ranks</a></li>
+            <li><a href="vehicles.html">Vehicles</a></li>
+            <li><a href="players.html">Player Statistics</a></li>
+            <li><a href="videos.html">Videos</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+    <div class="auth-buttons">
+      <button>Login</button>
+      <button>Sign Up</button>
+    </div>
+  </nav>
+</header>
+
+<!-- 页面标题 -->
+<section class="hero">
+  <h1>Vehicle stats for 1 month</h1>
+  <div class="filter-bar">
+    <label>Stats for last</label>
+    <select>
+      <option>1 month</option>
+      <option>3 months</option>
+      <option>6 months</option>
+    </select>
+  </div>
+</section>
+
+<!-- 筛选区域 -->
+<section class="filters">
+  <div class="search-bar">
+    <input type="text" placeholder="Search vehicles...">
+  </div>
+  <div class="country-buttons">
+    <button>All</button>
+    <button>🇬🇧 Britain</button>
+    <button>🇨🇳 China</button>
+    <button>🇫🇷 France</button>
+    <button>🇩🇪 Germany</button>
+    <button>🇺🇸 USA</button>
+    <button>🇷🇺 USSR</button>
+  </div>
+  <div class="role-buttons">
+    <button>All roles</button>
+    <button>Jet Fighters</button>
+    <button>Bombers</button>
+  </div>
+</section>
+
+<!-- 表格数据 -->
+<section class="vehicle-table">
+  <table>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Role</th>
+        <th>AB</th>
+        <th>RB</th>
+        <th>SB</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Su-27SM</td>
+        <td>Jet Fighter</td>
+        <td>202</td>
+        <td>1273</td>
+        <td>94</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>MiG-29</td>
+        <td>Jet Fighter</td>
+        <td>0</td>
+        <td>46</td>
+        <td>49</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>F-15C MSIP II</td>
+        <td>Jet Fighter</td>
+        <td>183</td>
+        <td>914</td>
+        <td>0</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 页脚 -->
+<footer>
+  <p>Made for CSIS 4495 Project | Vehicle Data Page</p>
+</footer>
+
+</body>
+</html>
