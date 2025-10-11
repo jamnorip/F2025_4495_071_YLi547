@@ -1,12 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-每日训练“车辆效率”模型（sklearn 版本）：
-- 目标 y：是否胜利（wins > losses）
-- 特征：player_skill（玩家实力，半年窗口内基于 EB 胜率的平滑估计） + OneHot(vehicle)
-- 模型：LogisticRegression（class_weight='balanced'）
-- 结果：按“标准玩家实力”计算每辆车的预测胜率 -> 映射到效率分（平均=100），落库 vehicle_efficiency
-"""
-
 import os
 import numpy as np
 import pandas as pd
@@ -23,7 +14,7 @@ import joblib
 
 from ..loadData import load_race_df, add_features
 
-# 读取 .env
+
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
@@ -118,7 +109,7 @@ def train_vehicle_efficiency(window_months: int = 6, alpha_skill: int = 20, min_
         print("[warn] no vehicles meet min_matches threshold")
         return
 
-    # 8) insert
+    # insert
     eng = get_engine()
     snap = datetime.utcnow().date()
     model_ver = "veh_v" + snap.strftime("%Y%m%d")
@@ -154,7 +145,7 @@ def train_vehicle_efficiency(window_months: int = 6, alpha_skill: int = 20, min_
         )
     eng.dispose()
 
-    # 9) save model
+    # save model
     meta = {
         "trained_at": datetime.utcnow().isoformat(timespec="seconds")+"Z",
         "window_months": window_months,
