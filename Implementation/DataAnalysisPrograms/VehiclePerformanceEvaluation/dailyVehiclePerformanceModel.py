@@ -130,7 +130,7 @@ def train_vehicle_efficiency(window_months: int = 6, alpha_skill: int = 20, min_
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         """))
 
-        # upsert
+        # update
         conn.execute(
             text("""INSERT INTO vehicle_efficiency
                     (snapshot_date, window, vehicle, p_ref, p_vehicle, efficiency, n_matches, auc, model_ver)
