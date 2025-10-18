@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- First include these two, note the order -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- <script defer src="barChart1.js"></script>
+    <script defer src="lineChart1.js"></script> -->
+    <script defer src="dynamicBarChart.js"></script>
+
+    <!-- style -->
+    <style>
+        .wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .col {
+            flex: 1 1 300px;
+            /* background: #1b1b1b; */
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .chartbox {
+            position: relative;
+            height: 320px;
+        }
+
+        /* Key point: use container height to control chart height */
+        canvas {
+            display: block;
+        }
+
+        /* Do not add padding to canvas to avoid size calculation issues */
+    </style>
+    <title>Chart Test Page</title>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="row">
+            <div class="col">
+                <h3>Bar Chart: Vehicle Usage Count</h3>
+                <div class="chartbox">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+
+            <!-- lineChart test -->
+            <div class="col">
+                <h3>Line Chart: Vehicle Usage Count</h3>
+                <div class="lineChartBox">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

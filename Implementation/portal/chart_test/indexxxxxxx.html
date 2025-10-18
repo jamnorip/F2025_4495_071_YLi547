@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Chart.js 入门：从零到出图</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- 先引 Chart.js，再引 main.js（注意顺序！） -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="main.js"></script>
+  <style>
+    body { background:#111; color:#eee; font-family:system-ui, sans-serif; padding:24px; }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    .row { display:flex; gap:24px; flex-wrap:wrap; }
+    .col { flex:1 1 500px; background:#1b1b1b; border-radius:16px; padding:16px; }
+    .chartbox { position:relative; height:320px; } /* 关键：用容器高度控制图表高度 */
+    canvas { display:block; } /* 不要给 canvas padding，避免计算尺寸偏差 */
+    button { margin-top:12px; padding:6px 12px; border-radius:8px; background:#2c2c2c; color:#eee; border:1px solid #3a3a3a; cursor:pointer;}
+    h1 { margin-bottom:24px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Chart.js 入门：从零到出图</h1>
+
+    <div class="row">
+      <div class="col">
+        <h3>Bar：载具使用次数</h3>
+        <div class="chartbox">
+          <canvas id="barChart"></canvas>
+        </div>
+        <button id="barUpdate">随机刷新数据</button>
+      </div>
+
+      <div class="col">
+        <h3>Line：每日胜场趋势</h3>
+        <div class="chartbox">
+          <canvas id="lineChart"></canvas>
+        </div>
+        <button id="lineToggle">切换：7天 / 30天</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
