@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Interactive Dashboard (Chart.js + PHP)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- 先引 Chart.js，再引你的脚本 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>RebalanceStats · Interactive Dashboard</h1>
+
+    <!-- 控件区 -->
+    <div class="controls">
+      <button id="btnRefresh">Refresh from DB</button>
+      <button id="btnToggleRange">Toggle: 7d / 30d</button>
+
+      <label>
+        Vehicle Filter:
+        <select id="vehicleFilter">
+          <option value="all">All</option>
+          <option value="APC">APC</option>
+          <option value="Tank">Tank</option>
+          <option value="Jeep">Jeep</option>
+          <option value="Artillery">Artillery</option>
+          <option value="Bike">Bike</option>
+          <option value="Drone">Drone</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- 性能读数 -->
+    <div class="metrics" id="metrics">
+      fetch: – ms | update: – ms
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <h3>Bar · Vehicle Usage</h3>
+        <div class="chartbox"><canvas id="barChart"></canvas></div>
+      </div>
+
+      <div class="col">
+        <h3>Line · Daily Wins</h3>
+        <div class="chartbox"><canvas id="lineChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 点击详情区 -->
+    <div class="details" id="details">Click a bar/point to see detail here…</div>
+  </div>
+</body>
+</html>
