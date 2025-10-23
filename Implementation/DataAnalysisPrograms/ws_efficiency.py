@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# abandoned, all data will be stored in DB now
 import json
 import time
 from functools import lru_cache
