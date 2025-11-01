@@ -1,5 +1,5 @@
 @echo off
-set HOST_IP=140.161.83.22
+set HOST_IP=140.161.83.9
 
 cd /d "C:\Users\300380547\Desktop\Windows\Windows\WorldRebalance\Binaries\Win64"
 echo Starting Unreal Client and connecting to %HOST_IP%:7777 ...

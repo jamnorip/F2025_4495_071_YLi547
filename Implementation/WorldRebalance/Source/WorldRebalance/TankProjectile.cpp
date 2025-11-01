@@ -14,6 +14,14 @@
 ATankProjectile::ATankProjectile()
 {
  	PrimaryActorTick.bCanEverTick = false;
+	// 在 constructor
+	bReplicates = true;
+	SetReplicateMovement(true);
+	// 假设你有一个 UProjectileMovementComponent* ProjectileMovement;
+	if (ProjectileMovement)
+	{
+		ProjectileMovement->SetIsReplicated(true); // 让 Movement Component 在网络上复制（如果存在）
+	}
 
 	CollisionMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName("CollisionMesh"));
 	SetRootComponent(CollisionMesh);
