@@ -13,7 +13,7 @@ This repository contains the project proposals, progress reports, and the implem
 ## 👥 Team Members
 | Name        | Student ID  | Email                              |
 |-------------|-------------|------------------------------------|
-| Suo Hao     | 300392463   | jamnorip@gmail.com                 |
+| Suo Hao     | 300392463   | suoh@student.douglascollege.ca                 |
 | Yaolong Liu | 300380547   | liuy122@student.douglascollege.ca  |
 | Muye Li     | 300388453   | MaxLi97@student.douglascollege.ca  |
 
