@@ -19,8 +19,8 @@ const pool = mysql.createPool({
 async function testConnection() {
   const conn = await pool.getConnection();
   await conn.ping();
-  conn.release();
   console.log('MySQL connected!');
 }
+
 
 module.exports = { pool, testConnection };
