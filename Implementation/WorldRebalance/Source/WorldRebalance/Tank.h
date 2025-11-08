@@ -32,6 +32,8 @@ public:
     float GetHealthPercent() const;
     UFUNCTION(BlueprintPure, Category = "Health")
     float GetCurrentHealth() const;
+    UFUNCTION(BlueprintCallable, Category = "Health")
+    float SetCurrentHealth(float SetHealth);
 
     // 初始化 Barrel / Turret（从关卡或蓝图里设）
     UFUNCTION(BlueprintCallable, Category = "Setup")
@@ -76,6 +78,10 @@ protected:
 
     UFUNCTION(BlueprintCallable, Category = "Firing")
     void SetOnHit();
+
+    UPROPERTY(BlueprintReadWrite, Category = "Health")
+    bool IsDead;
+
 
 private:
     // ---- Sight / crosshair helpers (在 Pawn 内实现)
@@ -126,13 +132,15 @@ private:
     double LastFireTime = 0.0;
 
     // Health
-    UPROPERTY(EditDefaultsOnly, Category = "Setup")
+    UPROPERTY(EditDefaultsOnly, Category = "Health")
     int32 StartingHealth = 100;
 
     // 标记为可复制（如果你希望客户端也能通过复制看到 health）
     UPROPERTY(Replicated, VisibleAnywhere, Category = "Health")
     int32 CurrentHealth;
 
+
+    
     // Helper: current aiming state helper already exposed above via FiringState
 
     // ---- helpers for replication

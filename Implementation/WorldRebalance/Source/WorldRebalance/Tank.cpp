@@ -25,7 +25,7 @@ void ATank::BeginPlay()
     Super::BeginPlay();
 
     LastFireTime = FPlatformTime::Seconds();
-
+    IsDead = false;
     // 通知蓝图：瞄准系统已可用（原先 FoundAimingComponent 用来传组件引用，这里仅通知）
     FoundAimingComponent();
 }
@@ -53,13 +53,12 @@ void ATank::Tick(float DeltaTime)
 
     if (IsLocallyControlled())
     {
-        // 客户端：计算瞄向并节流发送给服务器（你已有逻辑）
-        //AimTowardCrosshair();
+        // 客户端：计算瞄向并节流发送给服务器
+        AimTowardCrosshair();
         // 节流发送的逻辑保持
 
     }
 }
-
 
 float ATank::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
@@ -71,6 +70,7 @@ float ATank::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, ACo
     //isOnHit = false;
     if (CurrentHealth <= 0)
     {
+        IsDead = true;
         OnDeath.Broadcast();
     }
 
@@ -82,8 +82,32 @@ float ATank::GetHealthPercent() const
     return (StartingHealth > 0) ? (static_cast<float>(CurrentHealth) / static_cast<float>(StartingHealth)) : 0.0f;
 }
 
+
 float ATank::GetCurrentHealth() const
 {
+    return static_cast<float>(CurrentHealth);
+}
+
+float ATank::SetCurrentHealth(float SetHealth)
+{
+    // 1. 只允許 Server 修改（防作弊）
+    if (!HasAuthority())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[SetCurrentHealth] Ignored on Client!"));
+        return CurrentHealth;   // 直接回傳當前值，不改
+    }
+
+    // 2. Clamp 範圍
+    int32 NewHealth = FMath::RoundToInt(SetHealth);
+    NewHealth = FMath::Clamp(NewHealth, 0, StartingHealth);
+
+    // 3. 只有真的改變才寫入（觸發 Replication）
+    if (CurrentHealth != NewHealth)
+    {
+        CurrentHealth = NewHealth;
+        UE_LOG(LogTemp, Log, TEXT("[Server] SetCurrentHealth -> %d"), CurrentHealth);
+    }
+
     return static_cast<float>(CurrentHealth);
 }
 
@@ -182,12 +206,8 @@ void ATank::Fire()
     {
         if (bHasHit)
         {
-            // 不要直接调用 AimAt(HitLocation) 导致与服务器不同步后被强制校正
-            // 改为：先发请求给服务器（服务器会 authoritative 计算并 spawn）
             ServerFire(HitLocation);
 
-            // 可选的本地视觉预测（必须使用与服务器相同的求解参数）
-            // 这里我们用相同的 AimAt 实现来预测（保证 client 用与 server 同样的算法）
             AimAt(HitLocation); // cosmetic only
         }
         else
