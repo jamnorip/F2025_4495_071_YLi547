@@ -7,7 +7,7 @@ $q       = trim($_GET['q'] ?? '');
 $country = trim($_GET['country'] ?? '');
 $role    = trim($_GET['role'] ?? '');
 
-// 动态拼 WHERE（用预处理防注入）
+
 $where = [];
 $params = [];
 
@@ -26,7 +26,7 @@ if ($role !== '') {
 
 $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
 
-// 查询所有匹配数据（不分页）
+
 $sql = "SELECT Name, Country, Role, MatchesPlayed, Wins, KDRatio,
                ROUND(Wins / NULLIF(MatchesPlayed, 0) * 100, 1) AS WinRate
         FROM vehicles
@@ -44,3 +44,4 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 echo json_encode([
   'rows' => $rows
 ], JSON_UNESCAPED_UNICODE);
+
