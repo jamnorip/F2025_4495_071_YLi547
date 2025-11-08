@@ -31,9 +31,9 @@ app.get('/api/gamedatas', async (req, res) => {
 });
 
 // 2 get_by_id
-app.get('/api/gamedatas/:id', async (req, res) => {
+app.get('/api/battlerecords/:id', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM GameData WHERE id = ?', [req.params.id]);
+    const [rows] = await pool.query('SELECT * FROM battle_records WHERE id = ?', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Record not found' });
     res.json(rows[0]);
   } catch (err) {
@@ -42,31 +42,31 @@ app.get('/api/gamedatas/:id', async (req, res) => {
 });
 
 // 3 add
-app.post('/api/gamedatas/add', async (req, res) => {
+app.post('/api/battlerecords/add', async (req, res) => {
   try {
     const data = req.body;
     const sql = `
-      INSERT INTO GameData
-      (PlayerIP, PlayerName, PlayTime, Win, Lost, Cost, Kills, Deaths, VehicleID, TakeDamage, GetDamage, EndTime, Round)
+      INSERT INTO battle_records
+      (PlayerIP, PlayerName, VehicleID, PlayTime, Win, Lost, Cost, Kills, Deaths, TakeDamage, GetDamage, EndTime, RoundNum)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       data.PlayerIP,
       data.PlayerName,
-      data.PlayTime,     
+      data.VehicleID,
+      data.PlayTime,
       data.Win,
       data.Lost,
       data.Cost,
       data.Kills,
       data.Deaths,
-      data.VehicleID,
       data.TakeDamage,
       data.GetDamage,
-      data.EndTime,      //'YYYY-MM-DD HH:MM:SS'
-      data.Round
+      data.EndTime,  // 'YYYY-MM-DD HH:MM:SS'
+      data.RoundNum
     ];
     const [result] = await pool.query(sql, values);
-    res.json({ message: 'GameData added successfully!', id: result.insertId });
+    res.json({ message: 'Battle record added successfully!', id: result.insertId });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -126,3 +126,4 @@ testConnection()
     console.error('connection failed:', err.message);
     process.exit(1);
   });
+
