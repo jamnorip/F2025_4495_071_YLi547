@@ -56,7 +56,6 @@ include "includes/db.php";
 </section>
 
 <script>
-// ========== 分以下！！！！ ==========
 
 // 表格体
 const tbody = document.getElementById('vehicle-body');
