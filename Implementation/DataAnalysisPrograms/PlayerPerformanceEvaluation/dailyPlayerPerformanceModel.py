@@ -21,7 +21,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import roc_auc_score
 
-NUM_FEATURES = ["kdr", "dpg", "dtpg", "cost_per_r","playtime_s"]   
+NUM_FEATURES = ["kdr", "dpg", "dtpg","playtime_s"]   
 CAT_FEATURES = ["vehicle"]                           
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "models")

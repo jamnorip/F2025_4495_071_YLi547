@@ -69,7 +69,7 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     df["dpg"]       = df["damage"] / rounds_safe                 
     df["dtpg"]      = df["damage_taken"] / rounds_safe           
     df["accuracy"]  = np.nan                                     
-    df["cost_per_r"] = df["cost_used"] / rounds_safe
+    # df["cost_per_r"] = df["cost_used"] / rounds_safe
 
     
     df = df.drop_duplicates(subset=["match_id", "user_id"])      
@@ -83,7 +83,7 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     df["win_rate"] = df["win_rate"].fillna(0.0)
     df["dpg"]      = df["dpg"].fillna(0.0)
     df["dtpg"]     = df["dtpg"].fillna(0.0)
-    df["cost_per_r"] = df["cost_per_r"].fillna(0.0)
+    # df["cost_per_r"] = df["cost_per_r"].fillna(0.0)
 
     return df
 
