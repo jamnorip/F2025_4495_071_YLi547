@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Sign Up</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+    <div class="auth-page">
+        <h1>Join World Rebalance</h1>
+        <p class="sub-text">Create your account to start your journey</p>
+
+        <form id="signupForm">
+            <input id="email" type="email" placeholder="Email" required />
+            <input id="password" type="password" placeholder="Password (min 6 chars)" minlength="6" required />
+            <button type="submit">Sign Up</button>
+            <div class="msg" id="msg"></div>
+        </form>
+
+        <p class="muted">Already have an account? <a href="login.html">Sign in</a></p>
+
+        <script type="module">
+            /* 1)  Firebase 配置 */
+            const firebaseConfig = {
+                apiKey: "AIzaSyAxhd0AfXSzbQac2wfVKUgaSHVvzdd4cls",
+                authDomain: "worldbalance-fd82b.firebaseapp.com",
+                projectId: "worldbalance-fd82b",
+                storageBucket: "worldbalance-fd82b.firebasestorage.app",
+                messagingSenderId: "644297876337",
+                appId: "1:644297876337:web:64cfd5587c693cca0f8cd0"
+            };
+
+            /* 2) Firebase SDK（CDN 模块版） */
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+            import {
+                getAuth,
+                onAuthStateChanged,
+                createUserWithEmailAndPassword,
+            } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+
+            // 已登录就直接回首页
+            onAuthStateChanged(auth, (user) => {
+                if (user) location.href = "index.php";
+            });
+
+            // 提交注册
+            const form = document.getElementById("signupForm");
+            const msg = document.getElementById("msg");
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                msg.textContent = "";
+                const email = document.getElementById("email").value.trim();
+                const password = document.getElementById("password").value;
+
+                try {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    location.href = "index.php";  // 注册成功自动登录并回首页
+                } catch (err) {
+                    msg.textContent = err.message || "Sign up failed";
+                }
+            });
+        </script>
+    </div>
+</body>
+
+</html>
