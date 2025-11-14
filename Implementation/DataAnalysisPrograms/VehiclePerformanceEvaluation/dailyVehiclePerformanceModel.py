@@ -14,7 +14,6 @@ import joblib
 
 from ..loadData import load_race_df, add_features
 
-
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
@@ -117,7 +116,7 @@ def train_vehicle_efficiency(window_months: int = 6, alpha_skill: int = 20, min_
         conn.execute(text("""
         CREATE TABLE IF NOT EXISTS vehicle_efficiency (
           snapshot_date DATE NOT NULL,
-          window       VARCHAR(16) NOT NULL,
+          `window`      VARCHAR(16) NOT NULL,
           vehicle      VARCHAR(64) NOT NULL,
           p_ref        DOUBLE NOT NULL,
           p_vehicle    DOUBLE NOT NULL,
@@ -133,7 +132,7 @@ def train_vehicle_efficiency(window_months: int = 6, alpha_skill: int = 20, min_
         # update
         conn.execute(
             text("""INSERT INTO vehicle_efficiency
-                    (snapshot_date, window, vehicle, p_ref, p_vehicle, efficiency, n_matches, auc, model_ver)
+                    (`snapshot_date`, `window`, `vehicle`, `p_ref`, `p_vehicle`, `efficiency`, `n_matches`, `auc`, `model_ver`)
                     VALUES (:d,:w,:veh,:pr,:pv,:eff,:n,:auc,:m)
                     ON DUPLICATE KEY UPDATE
                       p_ref=VALUES(p_ref), p_vehicle=VALUES(p_vehicle),
@@ -158,5 +157,8 @@ def train_vehicle_efficiency(window_months: int = 6, alpha_skill: int = 20, min_
     joblib.dump({"pipeline": pipe, "meta": meta}, MODEL_PATH)
     print(f"[OK] {len(rows)} vehicles written. AUC={auc:.3f} p_ref={p_ref:.3f} model={MODEL_PATH}")
 
+
+
+    
 if __name__ == "__main__":
     train_vehicle_efficiency(window_months=6, alpha_skill=20, min_matches_vehicle=50)
