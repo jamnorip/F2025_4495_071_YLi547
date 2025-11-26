@@ -15,6 +15,7 @@ class WORLDREBALANCE_API UTankTurret : public UStaticMeshComponent
 	GENERATED_BODY()
 
 public:
+	UTankTurret();
 	//-1 is max downward speed, +1 is max up movement
 	void Rotate(float RelativeSpeed);
 

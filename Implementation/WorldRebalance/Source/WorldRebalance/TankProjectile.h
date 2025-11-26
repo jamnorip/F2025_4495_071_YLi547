@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PC_Trooper.h"
+#include "Tank.h"
 #include "GameFramework/Actor.h"
 #include "TankProjectile.generated.h"
 
@@ -27,17 +29,32 @@ public:
 
 	void LaunchProjectile(float Speed);
 
+	UPROPERTY(EditDefaultsOnly, Category="Setup")
+	float ProjectileDamage = 21.0f;
+
 private:
+	// 处理伤害计算和统计的核心函数
+	void ProcessDamageAndStats(AActor* HitTankActor);
+	bool WillTankBeKilled(float CurrentHealth) const;
+	ATank* GetFiringTank() const;
+	// 获取玩家控制器
+	APC_Trooper* GetPlayerControllerFromTank(ATank* Tank) const;
+	
+
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
 			   FVector NormalImpulse, const FHitResult& Hit);
+    
+	// 添加网络复制函数
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_OnHit();
+    
 	void OnTimerExpire();
 
+
+	
 	UPROPERTY(EditDefaultsOnly, Category="Setup")
 	float DestroyDelay = 2.5f;
-
-	UPROPERTY(EditDefaultsOnly, Category="Setup")
-	float ProjectileDamage = 20.0f;
 
 	// forward-declared pointer members
 	UProjectileMovementComponent* ProjectileMovement = nullptr;

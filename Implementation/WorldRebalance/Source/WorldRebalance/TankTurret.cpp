@@ -3,6 +3,14 @@
 
 #include "TankTurret.h"
 
+UTankTurret::UTankTurret()
+{
+	PrimaryComponentTick.bCanEverTick = false;
+
+	// 组件复制开启
+	SetIsReplicatedByDefault(true);
+}
+
 void UTankTurret::Rotate(float RelativeSpeed)
 {
 	FRotator CurrentRotation = GetRelativeRotation();

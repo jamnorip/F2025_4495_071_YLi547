@@ -1,0 +1,3 @@
+PlayerName, Vehicle, JoinTime, LeaveTime, PlayDuration, KillCount, DeathCount, IsWin, DamageDealt, DamageGet
+aaa, BP_AttackBike_C , Nov 25, 2025, 1:09:15 AM, Nov 25, 2025, 1:10:05 AM, 0:49, 1, 0, true, 500, 700
+eee, BP_RaiderBuggy_C , Nov 25, 2025, 1:09:24 AM, Nov 25, 2025, 1:10:05 AM, 0:40, 1, 1, true, 700, 500

@@ -15,6 +15,7 @@ class WORLDREBALANCE_API UTankBarrel : public UStaticMeshComponent
 	GENERATED_BODY()
 
 public:
+	UTankBarrel();
 	//-1 is max downward speed, +1 is max up movement
 	void Elevate(float RelativeSpeed);
 

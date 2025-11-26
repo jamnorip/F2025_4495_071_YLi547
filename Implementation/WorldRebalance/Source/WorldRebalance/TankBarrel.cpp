@@ -3,6 +3,15 @@
 
 #include "TankBarrel.h"
 
+UTankBarrel::UTankBarrel()
+{
+	PrimaryComponentTick.bCanEverTick = false;
+
+	// 组件复制开启
+	SetIsReplicatedByDefault(true);
+}
+
+
 void UTankBarrel::Elevate(float RelativeSpeed)
 {
 	
