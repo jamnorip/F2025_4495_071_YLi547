@@ -31,3 +31,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+    while True:
+        logging.info("Sleeping 24h until next run ...")
+        time.sleep(24 * 3600-60)
+        main()
+ 
