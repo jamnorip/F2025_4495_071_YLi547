@@ -5,30 +5,39 @@ from typing import List, Dict, Any
 
 import pymysql
 from pymysql.cursors import DictCursor
-from dotenv import load_dotenv, find_dotenv
+from pathlib import Path
+# from dotenv import load_dotenv, find_dotenv
 
-load_dotenv(find_dotenv())
+# load_dotenv(find_dotenv())
 
 # Configuration needs to be modified
-LOG_DIR = os.getenv("LOG_DIR", "logs")
-SLEEP_SECS = int(os.getenv("LOG_SCAN_INTERVAL", "10"))
-FILE_READY_AGE = int(os.getenv("FILE_READY_AGE", "3"))
-BATCH_SIZE = int(os.getenv("BATCH_SIZE", "1000"))
-
-DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
-DB_PORT = int(os.getenv("DB_PORT", "3306"))
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASS = os.getenv("DB_PASS", "")
-DB_NAME = os.getenv("DB_NAME", "game")
-DB_CHARSET = "utf8mb4"
-
+# LOG_DIR = "log"            
+LOG_DIR = str((Path(__file__).resolve().parent / "log"))            
+SLEEP_SECS = 10             
+FILE_READY_AGE = 3          
+BATCH_SIZE = 1000           
+ALLOWED_EXTS = {'.csv', '.txt'}
+# MySQL 
+DB_HOST = "127.0.0.1"       
+DB_PORT = 3306              
+DB_USER = "root"            
+DB_PASS = "123456"                
+DB_NAME = "game"            
+DB_CHARSET = "utf8mb4"      
+# PlayerName, Vehicle, JoinTime, LeaveTime, PlayDuration, KillCount, DeathCount, IsWin, DamageDealt, DamageGet
 # the log file columns is the same as the DB table `race`
 RACE_COLS = [
+    "PlayerName", "Vehicle", "JoinTime", "LeaveTime", "PlayDuration", "KillCount", "DeathCount", "IsWin", "DamageDealt", "DamageGet"
+]
+SRC_COLS = [
+    "PlayerName","Vehicle","JoinTime","LeaveTime","PlayDuration",
+    "KillCount","DeathCount","IsWin","DamageDealt","DamageGet"
+]
+DB_COLS = [
     "matchID","userID","userName","vehicle","team",
     "startTime","endTime","playtime","round","win","lose",
     "kill","death","damage","damageTake","costUsed"
 ]
-
 def get_conn():
     return pymysql.connect(
         host=DB_HOST, port=DB_PORT, user=DB_USER, password=DB_PASS,
@@ -105,29 +114,33 @@ def to_dt(x):
             return None
 
 def normalize_row(row: Dict[str, Any]) -> Dict[str, Any]:
+    win=0
+    lose=0
     
     r = {k: (v.strip() if isinstance(v, str) else v) for k, v in row.items()}
+    is_win = str(r.get("IsWin","")).strip().lower() in ("true","1","yes","y")
+    win, lose = (1,0) if is_win else (0,1)
     out = {
-        "matchID":    r.get("matchID"),
-        "userID":     r.get("userID"),
-        "userName":   r.get("userName"),
-        "vehicle":    r.get("vehicle"),
-        "team":       r.get("team"),
-        "startTime":  to_dt(r.get("startTime")),
-        "endTime":    to_dt(r.get("endTime")),
-        "playtime":   to_int(r.get("playtime")),
-        "round":      to_int(r.get("round")),
-        "win":        to_int(r.get("win")),
-        "lose":       to_int(r.get("lose")),
-        "kill":       to_int(r.get("kill")),
-        "death":      to_int(r.get("death")),
-        "damage":     to_int(r.get("damage")),
-        "damageTake": to_int(r.get("damageTake")),
-        "costUsed":   to_int(r.get("costUsed")),
+        "matchID":    0,
+        "userID":     r.get("PlayerName"),
+        "userName":   r.get("PlayerName"),
+        "vehicle":    r.get("Vehicle"),
+        "team":       0,
+        "startTime":  to_dt(r.get("JoinTime")),   
+        "endTime":    to_dt(r.get("LeaveTime")),  
+        "playtime":   to_seconds_duration(r.get("PlayDuration")),
+        "round":      1,
+        "win":        win,
+        "lose":       lose,
+        "kill":       to_int(r.get("KillCount")),
+        "death":      to_int(r.get("DeathCount")),
+        "damage":     to_int(r.get("DamageDealt")),
+        "damageTake": to_int(r.get("DamageGet")),
+        "costUsed":   0,
     }
-    # invalid record
-    if not out["matchID"] or not out["userID"]:
-        return {}
+    # # invalid record
+    # if not out["matchID"] or not out["userID"]:
+    #     return {}
     # change negative to zero
     for k in ["playtime","round","win","lose","kill","death","damage","damageTake","costUsed"]:
         if out[k] is not None and out[k] < 0:
@@ -137,24 +150,54 @@ def normalize_row(row: Dict[str, Any]) -> Dict[str, Any]:
 def read_csv_records(path: str) -> List[Dict[str, Any]]:
     rows = []
     with open(path, "r", encoding="utf-8-sig", newline="") as f:
-        rdr = csv.DictReader(f)
+        rdr = csv.DictReader(f, delimiter=';', skipinitialspace=True)
         headers = [h.strip() for h in rdr.fieldnames or []]
         need = set(RACE_COLS)
         miss = [c for c in need if c not in headers]
         if miss:
-            raise ValueError(f"CSV缺少列: {miss} (文件: {path})")
+            raise ValueError(f"CSV miss: {miss} (文件: {path})")
         for row in rdr:
             rec = normalize_row(row)
             if rec:
                 rows.append(rec)
+    return rowsinsert_rows
+def read_log_records(path: str) -> list[dict]:
+    rows = []
+    with open(path, "r", encoding="utf-8-sig", newline="") as f:
+        rdr = csv.DictReader(f, delimiter=';', skipinitialspace=True)
+        headers = [h.strip() for h in (rdr.fieldnames or [])]
+        miss = [c for c in SRC_COLS if c not in headers]
+        if miss:
+            raise ValueError(f"缺少列: {miss} (文件: {path})")
+        for row in rdr:
+            # 统一去空格（你现有的 normalize_row 里也会再做一遍，留着更稳）
+            row = {k.strip(): (v.strip() if isinstance(v, str) else v) for k, v in row.items()}
+            rec = normalize_row(row)   # 仍然返回数据库16列：matchID、userID、…、costUsed
+            if rec:
+                rows.append(rec)
     return rows
+# UPSERT_SQL = """
+# INSERT INTO `race`
+# (`matchID`,`userID`,`userName`,`vehicle`,`team`,`startTime`,`endTime`,
+#  `playtime`,`round`,`win`,`lose`,`kill`,`death`,`damage`,`damageTake`,`costUsed`)
+# VALUES
+# ({vals})
+# ON DUPLICATE KEY UPDATE
+#  `userName`=VALUES(`userName`), `vehicle`=VALUES(`vehicle`), `team`=VALUES(`team`),
+#  `startTime`=VALUES(`startTime`), `endTime`=VALUES(`endTime`),
+#  `playtime`=VALUES(`playtime`), `round`=VALUES(`round`),
+#  `win`=VALUES(`win`), `lose`=VALUES(`lose`),
+#  `kill`=VALUES(`kill`), `death`=VALUES(`death`),
+#  `damage`=VALUES(`damage`), `damageTake`=VALUES(`damageTake`),
+#  `costUsed`=VALUES(`costUsed`);
+# """
 
 UPSERT_SQL = """
 INSERT INTO `race`
 (`matchID`,`userID`,`userName`,`vehicle`,`team`,`startTime`,`endTime`,
  `playtime`,`round`,`win`,`lose`,`kill`,`death`,`damage`,`damageTake`,`costUsed`)
 VALUES
-({vals})
+(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
 ON DUPLICATE KEY UPDATE
  `userName`=VALUES(`userName`), `vehicle`=VALUES(`vehicle`), `team`=VALUES(`team`),
  `startTime`=VALUES(`startTime`), `endTime`=VALUES(`endTime`),
@@ -166,27 +209,70 @@ ON DUPLICATE KEY UPDATE
 """
 
 # Generate multi-value placeholders (bulk inserts are faster)
-VALUES_1ROW = "(" + ",".join(["%s"] * len(RACE_COLS)) + ")"
+VALUES_1ROW = "(" + ",".join(["%s"] * len(DB_COLS)) + ")"
 
 def insert_rows(conn, recs: List[Dict[str, Any]]) -> int:
-    if not recs: return 0
+    if not recs:
+        return 0
     total = 0
     with conn.cursor() as cur:
         for i in range(0, len(recs), BATCH_SIZE):
             batch = recs[i:i+BATCH_SIZE]
-            params = [tuple(batch[j][c] for c in RACE_COLS) for j in range(len(batch))]
-            sql = UPSERT_SQL.replace("{vals}", ",".join([VALUES_1ROW]*len(batch)))
-            cur.execute(sql, sum([list(p) for p in params], [])) 
+            params = [tuple(r.get(c) for c in DB_COLS) for r in batch]
+
+            
+            print("DB_COLS len:", len(DB_COLS))
+            print("first tuple len:", len(params[0]))
+
+            cur.executemany(UPSERT_SQL, params)
             total += len(batch)
     conn.commit()
     return total
 
+def to_seconds_duration(s):
+    if s is None or str(s).strip()=="":
+        return None
+    t = str(s).strip()
+    if t.isdigit():
+        return int(t)
+    parts = t.split(":")
+    try:
+        if len(parts)==2:
+            m, ss = int(parts[0]), int(parts[1]); return m*60 + ss
+        if len(parts)==3:
+            hh, m, ss = int(parts[0]), int(parts[1]), int(parts[2]); return hh*3600 + m*60 + ss
+    except Exception:
+        return None
+    return None
+def to_dt(x):
+    if x is None: return None
+    s = str(x).strip()
+    if not s: return None
+    try:
+        return datetime.fromisoformat(s.replace("Z","+00:00")).astimezone(timezone.utc).replace(tzinfo=None)
+    except Exception:
+        pass
+    try:
+        return datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+    except Exception:
+        pass
+    # try "MMM DD YYYY HH:MM:SS AM/PM"
+    try:
+        return datetime.strptime(s, "%b %d %Y %I:%M:%S %p")
+    except Exception:
+        return None
 def scan_once():
     if not os.path.isdir(LOG_DIR):
         print(f"[warn] LOG_DIR not found: {LOG_DIR}")
         return
-    csv_files = [os.path.join(LOG_DIR, n) for n in os.listdir(LOG_DIR)
-                 if os.path.isfile(os.path.join(LOG_DIR, n)) and n.lower().endswith(".csv")]
+    # csv_files = [os.path.join(LOG_DIR, n) for n in os.listdir(LOG_DIR)
+    #              if os.path.isfile(os.path.join(LOG_DIR, n)) and n.lower().endswith(".csv")]
+    csv_files = [
+        os.path.join(LOG_DIR, n)
+        for n in os.listdir(LOG_DIR)
+        if os.path.isfile(os.path.join(LOG_DIR, n))
+        and os.path.splitext(n)[1].lower() in ALLOWED_EXTS
+    ]
     if not csv_files: return
 
     conn = get_conn()
@@ -198,13 +284,15 @@ def scan_once():
                     continue
                 st = os.stat(path)
                 sha = file_sha256(path)
+                # skip already ingested files by sha256
                 if already_ingested(conn, path, sha):
                     continue
 
-                recs = read_csv_records(path)
+                # recs = read_csv_records(path)
+                recs = read_log_records(path)
                 n = insert_rows(conn, recs) if recs else 0
                 insert_manifest(conn, path, st.st_size,
-                                datetime.utcfromtimestamp(st.st_mtime),
+                                datetime.fromtimestamp(st.st_mtime, timezone.utc),
                                 sha, rows=n, status="OK", message=None)
                 print(f"[OK] {os.path.basename(path)} → {n} rows")
             except Exception as e:
@@ -212,7 +300,7 @@ def scan_once():
                     st = os.stat(path)
                     sha = file_sha256(path)
                     insert_manifest(conn, path, st.st_size,
-                                    datetime.utcfromtimestamp(st.st_mtime),
+                                    datetime.fromtimestamp(st.st_mtime, timezone.utc),
                                     sha, rows=0, status="ERR", message=str(e)[:500])
                 except Exception:
                     pass
