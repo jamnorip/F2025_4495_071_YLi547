@@ -126,20 +126,20 @@ def evaluate_and_store_player_vehicle(window_months: int = 6, alpha: int = 10):
     eng = get_engine()
     with eng.begin() as conn:
         # create table if not exists
-        conn.execute(text("""
-        CREATE TABLE IF NOT EXISTS `player_vehicle_percentiles` (
-          `snapshot_date` DATE NOT NULL,
-          `window`        VARCHAR(16) NOT NULL,
-          `user_id`       VARCHAR(64) NOT NULL,
-          `vehicle`       VARCHAR(64) NOT NULL,
-          `score`         DOUBLE NOT NULL,
-          `pct`           DOUBLE NOT NULL,
-          `n_matches`     INT NOT NULL,
-          `model_ver`     VARCHAR(32) NOT NULL,
-          PRIMARY KEY (`snapshot_date`,`window`,`user_id`,`vehicle`),
-          KEY `ix_user` (`user_id`), KEY `ix_vehicle` (`vehicle`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """))
+        # conn.execute(text("""
+        # CREATE TABLE IF NOT EXISTS `player_vehicle_percentiles` (
+        #   `snapshot_date` DATE NOT NULL,
+        #   `window`        VARCHAR(16) NOT NULL,
+        #   `user_id`       VARCHAR(64) NOT NULL,
+        #   `vehicle`       VARCHAR(64) NOT NULL,
+        #   `score`         DOUBLE NOT NULL,
+        #   `pct`           DOUBLE NOT NULL,
+        #   `n_matches`     INT NOT NULL,
+        #   `model_ver`     VARCHAR(32) NOT NULL,
+        #   PRIMARY KEY (`snapshot_date`,`window`,`user_id`,`vehicle`),
+        #   KEY `ix_user` (`user_id`), KEY `ix_vehicle` (`vehicle`)
+        # ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        # """))
 
         conn.execute(text("""
             INSERT INTO `player_vehicle_percentiles`

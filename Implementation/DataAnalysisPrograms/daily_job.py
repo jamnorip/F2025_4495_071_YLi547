@@ -1,6 +1,6 @@
 import logging, sys
 from datetime import datetime
-
+import time
 
 from .PlayerPerformanceEvaluation.dailyPlayerPerformanceModel import (
     train_player_win_model,           
@@ -36,3 +36,4 @@ if __name__ == "__main__":
         time.sleep(24 * 3600-60)
         main()
  
+#  python -m Implementation.DataAnalysisPrograms.daily_job

@@ -18,11 +18,11 @@ FILE_READY_AGE = 3
 BATCH_SIZE = 1000           
 ALLOWED_EXTS = {'.csv', '.txt'}
 # MySQL 
-DB_HOST = "127.0.0.1"       
+DB_HOST = "34.45.55.86"       
 DB_PORT = 3306              
-DB_USER = "root"            
+DB_USER = "chris"            
 DB_PASS = "123456"                
-DB_NAME = "game"            
+DB_NAME = "worldrebalance"            
 DB_CHARSET = "utf8mb4"      
 # PlayerName, Vehicle, JoinTime, LeaveTime, PlayDuration, KillCount, DeathCount, IsWin, DamageDealt, DamageGet
 # the log file columns is the same as the DB table `race`
@@ -101,17 +101,25 @@ def to_int(x):
         return None
 
 def to_dt(x):
-    if x is None: return None
+    if x is None: 
+        return None
     s = str(x).strip()
-    if not s: return None
+    if not s: 
+        return None
     # ISO or "YYYY-MM-DD HH:MM:SS"
     try:
-        return datetime.fromisoformat(s.replace("Z","+00:00")).astimezone(timezone.utc).replace(tzinfo=None)
+        return datetime.fromisoformat(s.replace("Z", "+00:00")).astimezone(timezone.utc).replace(tzinfo=None)
     except Exception:
+            pass
+        # Dec 2, 2025, 9:25:02 PM
+    for fmt in ("%Y-%m-%d %H:%M:%S",
+                "%b %d, %Y, %I:%M:%S %p",   # ← with comma
+                "%b %d %Y %I:%M:%S %p"):    # ← without comma
         try:
-            return datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+            return datetime.strptime(s, fmt)
         except Exception:
-            return None
+            continue
+    return None 
 
 def normalize_row(row: Dict[str, Any]) -> Dict[str, Any]:
     win=0
@@ -147,20 +155,21 @@ def normalize_row(row: Dict[str, Any]) -> Dict[str, Any]:
             out[k] = 0
     return out
 
-def read_csv_records(path: str) -> List[Dict[str, Any]]:
-    rows = []
-    with open(path, "r", encoding="utf-8-sig", newline="") as f:
-        rdr = csv.DictReader(f, delimiter=';', skipinitialspace=True)
-        headers = [h.strip() for h in rdr.fieldnames or []]
-        need = set(RACE_COLS)
-        miss = [c for c in need if c not in headers]
-        if miss:
-            raise ValueError(f"CSV miss: {miss} (文件: {path})")
-        for row in rdr:
-            rec = normalize_row(row)
-            if rec:
-                rows.append(rec)
-    return rowsinsert_rows
+# def read_csv_records(path: str) -> List[Dict[str, Any]]:
+#     rows = []
+#     with open(path, "r", encoding="utf-8-sig", newline="") as f:
+#         rdr = csv.DictReader(f, delimiter=';', skipinitialspace=True)
+#         headers = [h.strip() for h in rdr.fieldnames or []]
+#         need = set(RACE_COLS)
+#         miss = [c for c in need if c not in headers]
+#         if miss:
+#             raise ValueError(f"CSV miss: {miss} (文件: {path})")
+#         for row in rdr:
+#             rec = normalize_row(row)
+#             if rec:
+#                 rows.append(rec)
+#     return rows
+
 def read_log_records(path: str) -> list[dict]:
     rows = []
     with open(path, "r", encoding="utf-8-sig", newline="") as f:
@@ -170,9 +179,8 @@ def read_log_records(path: str) -> list[dict]:
         if miss:
             raise ValueError(f"缺少列: {miss} (文件: {path})")
         for row in rdr:
-            # 统一去空格（你现有的 normalize_row 里也会再做一遍，留着更稳）
             row = {k.strip(): (v.strip() if isinstance(v, str) else v) for k, v in row.items()}
-            rec = normalize_row(row)   # 仍然返回数据库16列：matchID、userID、…、costUsed
+            rec = normalize_row(row)   
             if rec:
                 rows.append(rec)
     return rows
@@ -221,8 +229,8 @@ def insert_rows(conn, recs: List[Dict[str, Any]]) -> int:
             params = [tuple(r.get(c) for c in DB_COLS) for r in batch]
 
             
-            print("DB_COLS len:", len(DB_COLS))
-            print("first tuple len:", len(params[0]))
+            # print("DB_COLS len:", len(DB_COLS))
+            # print("first tuple len:", len(params[0]))
 
             cur.executemany(UPSERT_SQL, params)
             total += len(batch)
@@ -244,23 +252,7 @@ def to_seconds_duration(s):
     except Exception:
         return None
     return None
-def to_dt(x):
-    if x is None: return None
-    s = str(x).strip()
-    if not s: return None
-    try:
-        return datetime.fromisoformat(s.replace("Z","+00:00")).astimezone(timezone.utc).replace(tzinfo=None)
-    except Exception:
-        pass
-    try:
-        return datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
-    except Exception:
-        pass
-    # try "MMM DD YYYY HH:MM:SS AM/PM"
-    try:
-        return datetime.strptime(s, "%b %d %Y %I:%M:%S %p")
-    except Exception:
-        return None
+
 def scan_once():
     if not os.path.isdir(LOG_DIR):
         print(f"[warn] LOG_DIR not found: {LOG_DIR}")

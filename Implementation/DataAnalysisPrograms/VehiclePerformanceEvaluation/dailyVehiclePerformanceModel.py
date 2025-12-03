@@ -113,21 +113,21 @@ def train_vehicle_efficiency(window_months: int = 6, alpha_skill: int = 20, min_
     snap = datetime.utcnow().date()
     model_ver = "veh_v" + snap.strftime("%Y%m%d")
     with eng.begin() as conn:
-        conn.execute(text("""
-        CREATE TABLE IF NOT EXISTS vehicle_efficiency (
-          snapshot_date DATE NOT NULL,
-          `window`      VARCHAR(16) NOT NULL,
-          vehicle      VARCHAR(64) NOT NULL,
-          p_ref        DOUBLE NOT NULL,
-          p_vehicle    DOUBLE NOT NULL,
-          efficiency   DOUBLE NOT NULL,
-          n_matches    INT NOT NULL,
-          auc          DOUBLE NOT NULL,
-          model_ver    VARCHAR(32) NOT NULL,
-          PRIMARY KEY (snapshot_date, window, vehicle),
-          KEY ix_vehicle (vehicle)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """))
+        # conn.execute(text("""
+        # CREATE TABLE IF NOT EXISTS vehicle_efficiency (
+        #   snapshot_date DATE NOT NULL,
+        #   `window`      VARCHAR(16) NOT NULL,
+        #   vehicle      VARCHAR(64) NOT NULL,
+        #   p_ref        DOUBLE NOT NULL,
+        #   p_vehicle    DOUBLE NOT NULL,
+        #   efficiency   DOUBLE NOT NULL,
+        #   n_matches    INT NOT NULL,
+        #   auc          DOUBLE NOT NULL,
+        #   model_ver    VARCHAR(32) NOT NULL,
+        #   PRIMARY KEY (snapshot_date, window, vehicle),
+        #   KEY ix_vehicle (vehicle)
+        # ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        # """))
 
         # update
         conn.execute(
